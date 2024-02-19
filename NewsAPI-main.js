@@ -3,40 +3,48 @@ let newsList = []
 const menus = document.querySelectorAll(".menus button")
 menus.forEach(menu => menu.addEventListener("click",(event)=> getNewsByCategory(event)))
 
+const getNews = async () => {
+    try {
+        const response = await fetch(url);
+        console.log("rrr",response);
+        const data = await response.json();
+        if(response.status===200) {
+            if(data.articles.length === 0) {
+                throw new Error("No result for this search");
+            }
+            newsList = data.articles;
+            render();
+        }else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        errorRender(error.message)
+    }
+};
+
+let url = new URL(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${API_KEY}`);
+
 const getLastestNews = async () => {
-    const url = new URL(
+    url = new URL(
         `https://newsapi.org/v2/top-headlines?country=us&apiKey=${API_KEY}`
         );
-    const response = await fetch(url);
-    const data = await response.json();
-    newsList = data.articles;
-    render();
-    console.log("ddd",newsList);
+    getNews();
 };
 
 
 const getNewsByCategory = async (event) => {
     const category = event.target.textContent.toLowerCase();
     console.log("category", category);
-    const url = new URL(`https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}
+    url = new URL(`https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${API_KEY}
     `);
-    const response = await fetch(url);
-    const data = await response.json();
-    console.log("DDDD",data)
-    newsList = data.articles;
-    render();
+    getNews();
 };
 
 
 const getNewsByKeyword = async ()=> {
     const keyword = document.getElementById("search-input").value;
-    console.log("keyword:",keyword);
-    const url = new URL(`https://newsapi.org/v2/top-headlines?country=us&q=${keyword}&apiKey=${API_KEY}`);
-    const response = await fetch(url);
-    const data = await response.json();
-    console.log("search data", data);
-    newsList = data.articles;
-    render();
+    url = new URL(`https://newsapi.org/v2/top-headlines?country=us&q=${keyword}&apiKey=${API_KEY}`);
+    getNews();
 };
 
 
@@ -64,7 +72,18 @@ const render= () => {
     `).join('');
 
     document.getElementById('news-board').innerHTML=newsHTML;
-}
+};
+
+
+
+const errorRender = (errorMessage)=> {
+    const errorHTML = `<div class="alert alert-danger" role="alert">
+        ${errorMessage}
+        </div>`;
+
+    document.getElementById("news-board").innerHTML = errorHTML;
+};
+
 
 getLastestNews();
 
