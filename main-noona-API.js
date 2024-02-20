@@ -1,12 +1,22 @@
-const API_KEY = `76624313b7a04dffb6f94de1e284955c`
-let newsList = []
-const menus = document.querySelectorAll(".menus button")
-menus.forEach(menu => menu.addEventListener("click",(event)=> getNewsByCategory(event)))
+const API_KEY = `76624313b7a04dffb6f94de1e284955c`;
+let newsList = [];
+const menus = document.querySelectorAll(".menus button");
+menus.forEach(menu => menu.addEventListener("click",(event)=> getNewsByCategory(event)));
+let url = new URL(`https://stunning-speculoos-2783a5.netlify.app/top-headlines`);
+
+let totalResults = 0;
+let page = 1;
+const pageSize = 10;
+const groupSize = 5;
 
 
 const getNews = async () => {
     try {
+        url.searchParams.set("page",page);
+        url.searchParams.set("pageSize",pageSize);
+
         const response = await fetch(url);
+        
         console.log("rrr",response);
         const data = await response.json();
         if(response.status===200) {
@@ -14,7 +24,9 @@ const getNews = async () => {
                 throw new Error("No result for this search");
             }
             newsList = data.articles;
+            totalResults = data.totalResults;
             render();
+            paginationRender();
         }else {
             throw new Error(data.message);
         }
@@ -25,7 +37,7 @@ const getNews = async () => {
 };
 
 
-let url = new URL(`https://stunning-speculoos-2783a5.netlify.app/top-headlines`);
+
 
 
 const getLastestNews = async () => {
@@ -90,12 +102,53 @@ const errorRender = (errorMessage)=> {
 };
 
 
+
+
+
+const paginationRender = ()=> { 
+   
+    const totalPages = Math.ceil(totalResults/pageSize);
+    const pageGroup = Math.ceil(page/groupSize);
+    
+    let lastPage = pageGroup * groupSize;
+    
+    if (lastPage > totalPages) {
+        lastPage = totalPages;
+    }
+
+    const firstPage = lastPage - (groupSize -1) <= 0 ? 1: lastPage - (groupSize -1);
+
+    let paginationHTML =''
+
+    if(firstPage >= 6) {
+    paginationHTML = `<li class="page-item" onclick="moveToPage(1)"><a class="page-link">First Page</a></li>
+                            <li class="page-item" onclick="moveToPage(${page-1})"><a class="page-link">Previous</a></li>`     
+    }
+
+    for(let i = firstPage; i <= lastPage;i++) {
+        paginationHTML += `<li class="page-item ${i===page ? "active" : ""}" onclick="moveToPage(${i})"><a class="page-link">${i}</a></li>`
+    }
+    
+    if(lastPage < totalPages) {
+    paginationHTML += `<li class="page-item" onclick="moveToPage(${page+1})"><a class="page-link">Next</a></li>
+                        <li class="page-item" onclick="moveToPage(${totalPages})"><a class="page-link">Last Page</a></li>`
+    }
+    
+
+    document.querySelector(".pagination").innerHTML = paginationHTML
+};
+    
+   
+
+const moveToPage = (pageNum) => {
+    console.log("movetopage",pageNum);
+    page = pageNum;
+    getNews();
+};
+
+
 getLastestNews();
 
-
-//1. 버튼들에 클릭 이벤트 주기
-//2. 카테고리별 뉴스 가져오기
-//3. 그 뉴스를 보여주기 render
 
 
 
