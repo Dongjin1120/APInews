@@ -10,6 +10,33 @@ const pageSize = 10;
 const groupSize = 5;
 
 
+
+
+const openNav = () => {
+    document.getElementById("mySidenav").style.width = "250px";
+  };
+  
+  const closeNav = () => {
+    document.getElementById("mySidenav").style.width = "0";
+  };
+
+
+  const openSearchBox = () => {
+    let inputArea = document.getElementById("input-area");
+    if (inputArea.style.display === "inline") {
+      inputArea.style.display = "none";
+    } else {
+      inputArea.style.display = "inline";
+    }
+  };
+
+
+
+
+
+
+
+
 const getNews = async () => {
     try {
         url.searchParams.set("page",page);
@@ -120,25 +147,28 @@ const paginationRender = ()=> {
 
     let paginationHTML =''
 
-    if(firstPage >= 6) {
-    paginationHTML = `<li class="page-item" onclick="moveToPage(1)"><a class="page-link">First Page</a></li>
-                            <li class="page-item" onclick="moveToPage(${page-1})"><a class="page-link">Previous</a></li>`     
+    if(page < 6 && page >1) {
+        paginationHTML = `<li class="page-item" onclick="moveToPage(${page-1})"><a class="page-link">Previous</a></li>`
     }
 
+    if(firstPage >= 6) {
+        paginationHTML = `<li class="page-item" onclick="moveToPage(1)"><a class="page-link">First Page</a></li>
+                            <li class="page-item" onclick="moveToPage(${page-1})"><a class="page-link">Previous</a></li>`     
+    }
+        
     for(let i = firstPage; i <= lastPage;i++) {
         paginationHTML += `<li class="page-item ${i===page ? "active" : ""}" onclick="moveToPage(${i})"><a class="page-link">${i}</a></li>`
     }
     
     if(lastPage < totalPages) {
-    paginationHTML += `<li class="page-item" onclick="moveToPage(${page+1})"><a class="page-link">Next</a></li>
+        paginationHTML += `<li class="page-item" onclick="moveToPage(${page+1})"><a class="page-link">Next</a></li>
                         <li class="page-item" onclick="moveToPage(${totalPages})"><a class="page-link">Last Page</a></li>`
     }
-    
 
+        
     document.querySelector(".pagination").innerHTML = paginationHTML
-};
-    
-   
+};  
+ 
 
 const moveToPage = (pageNum) => {
     console.log("movetopage",pageNum);
@@ -148,7 +178,5 @@ const moveToPage = (pageNum) => {
 
 
 getLastestNews();
-
-
 
 
